@@ -27,19 +27,19 @@ def close_db(_error=None):
     Args:
         error (error, optional): Error. Defaults to None.
     """
-    db_conn = g.pop('db', None)
+    database = g.pop('db', None)
 
-    if db_conn is not None:
-        db_conn.close()
+    if database is not None:
+        database.close()
 
 
 def init_db():
     """Initialize database
     """
-    db_conn = get_db()
+    database = get_db()
 
     with current_app.open_resource('schema.sql') as file:
-        db_conn.executescript(file.read().decode('utf8'))
+        database.executescript(file.read().decode('utf8'))
 
 
 @click.command('init-db')
