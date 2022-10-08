@@ -12,6 +12,11 @@ bp = Blueprint('blog', __name__)
 
 @bp.route('/')
 def index():
+    """Blog index
+
+    Returns:
+        str: Blog index page
+    """
     db = get_db()
     posts = db.execute(
         'SELECT p.id, title, body, created, author_id, username'
@@ -24,10 +29,10 @@ def index():
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
-    """Create blog
+    """Create post
 
     Returns:
-        str: Create blog page
+        str: Create post page
     """
     if request.method == 'POST':
         title = request.form['title']
@@ -52,11 +57,11 @@ def create():
     return render_template('blog/create.html')
 
 
-def get_post(post_id, check_author=True):
+def get_post(id, check_author=True):
     """Get post
 
     Args:
-        post_id (int): Post ID
+        id (int): Post ID
         check_author (bool, optional): Check if author matches the logged in user. Defaults to True.
 
     Returns:
@@ -66,11 +71,11 @@ def get_post(post_id, check_author=True):
         'SELECT p.id, title, body, created, author_id, username'
         ' FROM post p JOIN user u ON p.author_id = u.id'
         ' WHERE p.id = ?',
-        (post_id,)
+        (id,)
     ).fetchone()
 
     if post is None:
-        abort(404, f"Post id {post_id} doesn't exist.")
+        abort(404, f"Post id {id} doesn't exist.")
 
     if check_author and post['author_id'] != g.user['id']:
         abort(403)
@@ -80,16 +85,16 @@ def get_post(post_id, check_author=True):
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
-def update(post_id):
+def update(id):
     """Update post
 
     Args:
-        post_id (int): Post ID
+        id (int): Post ID
 
     Returns:
-        str: Update page
+        str: Update post page
     """
-    post = get_post(post_id)
+    post = get_post(id)
 
     if request.method == 'POST':
         title = request.form['title']
@@ -102,13 +107,13 @@ def update(post_id):
         if error is not None:
             flash(error)
         else:
-            database = get_db()
-            database.execute(
+            db = get_db()
+            db.execute(
                 'UPDATE post SET title = ?, body = ?'
                 ' WHERE id = ?',
-                (title, body, post_id)
+                (title, body, id)
             )
-            database.commit()
+            db.commit()
             return redirect(url_for('blog.index'))
 
     return render_template('blog/update.html', post=post)
