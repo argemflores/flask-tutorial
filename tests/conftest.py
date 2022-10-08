@@ -58,3 +58,51 @@ def runner(test_app):
         object: Test runner
     """
     return test_app.test_cli_runner()
+
+
+class AuthActions():
+    """Authentication Actions
+    """
+    def __init__(self, _client):
+        """Initialize
+
+        Args:
+            client (object): Client
+        """
+        self._client = _client
+
+    def login(self, username='test', password='test'):
+        """Log in
+
+        Args:
+            username (str, optional): Username. Defaults to 'test'.
+            password (str, optional): Password. Defaults to 'test'.
+
+        Returns:
+            object: Login response
+        """
+        return self._client.post(
+            '/auth/login',
+            data={'username': username, 'password': password}
+        )
+
+    def logout(self):
+        """Log out
+
+        Returns:
+            object: Logout response
+        """
+        return self._client.get('/auth/logout')
+
+
+@pytest.fixture
+def auth(_client):
+    """Authentication
+
+    Args:
+        client (object): Client
+
+    Returns:
+        object: Authentication Actions
+    """
+    return AuthActions(_client)
