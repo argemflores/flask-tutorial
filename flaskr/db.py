@@ -1,7 +1,7 @@
 """Imports"""
 import sqlite3
 
-# import click
+import click
 from flask import current_app, g
 
 
@@ -31,3 +31,20 @@ def close_db(_error=None):
 
     if db_conn is not None:
         db_conn.close()
+
+
+def init_db():
+    """Initialize database
+    """
+    db_conn = get_db()
+
+    with current_app.open_resource('schema.sql') as file:
+        db_conn.executescript(file.read().decode('utf8'))
+
+
+@click.command('init-db')
+def init_db_command():
+    """Clear the existing data and create new tables.
+    """
+    init_db()
+    click.echo('Initialized the database.')
