@@ -19,7 +19,7 @@ def app():
     """
     db_fd, db_path = tempfile.mkstemp()
 
-    test_app = create_app({
+    app = create_app({
         'TESTING': True,
         'DATABASE': db_path,
     })
@@ -28,14 +28,14 @@ def app():
         init_db()
         get_db().executescript(_data_sql)
 
-    yield test_app
+    yield app
 
     os.close(db_fd)
     os.unlink(db_path)
 
 
 @pytest.fixture
-def client(test_app):
+def client(app):
     """Test client
 
     Args:
@@ -44,11 +44,11 @@ def client(test_app):
     Returns:
         client: Test client
     """
-    return test_app.test_client()
+    return app.test_client()
 
 
 @pytest.fixture
-def runner(test_app):
+def runner(app):
     """Test runner
 
     Args:
@@ -57,19 +57,19 @@ def runner(test_app):
     Returns:
         object: Test runner
     """
-    return test_app.test_cli_runner()
+    return app.test_cli_runner()
 
 
 class AuthActions():
     """Authentication Actions
     """
-    def __init__(self, _client):
+    def __init__(self, client):
         """Initialize
 
         Args:
             client (object): Client
         """
-        self._client = _client
+        self._client = client
 
     def login(self, username='test', password='test'):
         """Log in
@@ -96,7 +96,7 @@ class AuthActions():
 
 
 @pytest.fixture
-def auth(_client):
+def auth(client):
     """Authentication
 
     Args:
@@ -105,4 +105,4 @@ def auth(_client):
     Returns:
         object: Authentication Actions
     """
-    return AuthActions(_client)
+    return AuthActions(client)
