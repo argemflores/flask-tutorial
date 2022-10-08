@@ -9,7 +9,7 @@ def get_db():
     """Get database
 
     Returns:
-        db: Database
+        object: Database
     """
     if 'db' not in g:
         g.db = sqlite3.connect(
@@ -48,3 +48,13 @@ def init_db_command():
     """
     init_db()
     click.echo('Initialized the database.')
+
+
+def init_app(app):
+    """Initialize application
+
+    Args:
+        app (object): Application
+    """
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
